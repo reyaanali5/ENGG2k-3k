@@ -1,50 +1,87 @@
 #include <Servo.h>
 
-// Pin assignments for motor driver control
-const int motorPin1 = 2;  // Motor driver input pin 1
-const int motorPin2 = 3;  // Motor driver input pin 2
-
-// Pin assignment for servo control
-const int servoPin = 9;  // Servo signal pin
-
-// Pin assignment for sensor input
-const int sensorPin = 4;  // Sensor input pin
-
-Servo gateServo;  // Create a servo object
+Servo servo;
+char data;
+int servoPin=9;
+int pos=90;
+byte motorPin1=5;
+byte motorPin2=6;
+byte motorSpeed=0;
+byte motorSpeedLow=0;
+byte motorSpeedHigh=255;
+int switchPin=2;
+int switchVal;
+int xPin=0;
+int yPin=1;
+int xValues;
+int yValues;
+int xRight=1023;
+int xLeft=0;
+int xIdleLow=540;
+int xIdleHigh=580;
+int yUp=200; //default 0
+int yDown=800; //default 1023
 
 void setup() {
-  // Initialize motor driver pins
-  pinMode(motorPin1, OUTPUT);
-  pinMode(motorPin2, OUTPUT);
-
-  // Attach servo to the pin
-  gateServo.attach(servoPin);
-
-  // Initialize sensor pin
-  pinMode(sensorPin, INPUT);
-
-  // Initial state: Close the gate
-  closeGate();
+  Serial.begin(9600);
+  servo.attach(servoPin);
+  servo.write(90);
+  pinMode(motorPin1,OUTPUT);
+  pinMode(motorPin2,OUTPUT);
+  pinMode(switchPin,INPUT);
+  digitalWrite(switchPin,HIGH);
 }
 
 void loop() {
-  int sensorValue = digitalRead(sensorPin);
+  //if(Serial.available()){
+    data=Serial.read();
+    analogWrite(motorPin1,motorSpeed);
+    analogWrite(motorPin2,motorSpeed);
+    
+    xValues=analogRead(xPin);
+    if((xValues>xIdleHigh) or (data=='R')) {
+      motorSpeed=map(xValues,xIdleHigh,xRight,motorSpeedLow,motorSpeedHigh);
+      analogWrite(motorPin1,motorSpeed);
+      analogWrite(motorPin2,motorSpeedLow);
+      Serial.print("TURNING RIGHT...");
+      Serial.print("\n");
+      delay(50);
+    } 
+    
+    xValues=analogRead(xPin);
+    if((xValues<xIdleLow) or (data=='L')) {
+      motorSpeed=map(xValues,xIdleLow,xLeft,motorSpeedLow,motorSpeedHigh);
+      analogWrite(motorPin1,motorSpeedLow);
+      analogWrite(motorPin2,motorSpeed);
+      Serial.print("TURNING LEFT...");
+      Serial.print("\n");
+      delay(50);
+    }
+    
+    yValues=analogRead(yPin);
+    if((yValues<=yUp) or (data=='U')) {
+      if(pos<150) {
+        pos+=1;
+      }
+      Serial.print("BARREL UP");
+      Serial.print("\n");
+      delay(50);
+    } else if((yValues>=yDown) or (data=='D')) {
+      if(pos>30) {
+        pos-=1; 
+      }
+      Serial.print("BARREL DOWN");
+      Serial.print("\n");
+      delay(50);
+    }
+    servo.write(pos);
+    delay(50);
 
-  if (sensorValue == HIGH) {
-    openGate();
-    delay(2000);  // Keep the gate open for 2 seconds
-    closeGate();
-  }
-}
-
-void openGate() {
-  digitalWrite(motorPin1, HIGH);
-  digitalWrite(motorPin2, LOW);
-  gateServo.write(90);  // Move servo to open position (90 degrees)
-}
-
-void closeGate() {
-  digitalWrite(motorPin1, LOW);
-  digitalWrite(motorPin2, HIGH);
-  gateServo.write(0);  // Move servo to closed position (0 degrees)
+    switchVal=digitalRead(switchPin);
+    if(switchVal==0) {
+      Serial.print("SHOOTING");
+      Serial.print("\n");
+      delay(50);
+    }
+  //}
 }
