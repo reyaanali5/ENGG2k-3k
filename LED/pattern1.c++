@@ -1,3 +1,4 @@
+
 #include <Adafruit_NeoPixel.h>
 
 class Strip
@@ -31,23 +32,20 @@ struct Loop
 };
 
 Strip strip_0(60, 8, 60, NEO_GRB + NEO_KHZ800);
-Strip strip_1(60, 9, 60, NEO_GRB + NEO_KHZ800);
 struct Loop strip0loop0(1, false, 1);
-struct Loop strip1loop0(0, false, 1);
 
 //[GLOBAL_VARIABLES]
 
 void setup() {
 
-  //enter setup here, for entire code
+  //Your setup here:
 
   strip_0.strip.begin();
-  strip_1.strip.begin();
 }
 
 void loop() {
 
-  //whilst also copying over other sections for loop. 
+  //Your code here:
 
   strips_loop();
 }
@@ -55,8 +53,6 @@ void loop() {
 void strips_loop() {
   if(strip0_loop0() & 0x01)
     strip_0.strip.show();
-  if(strip1_loop0() & 0x01)
-    strip_1.strip.show();
 }
 
 uint8_t strip0_loop0() {
@@ -82,12 +78,12 @@ uint8_t strip0_loop0_eff0() {
     // Strip ID: 0 - Effect: Rainbow - LEDS: 60
     // Steps: 60 - Delay: 20
     // Colors: 3 (255.0.0, 0.255.0, 0.0.255)
-    // Options: rainbowlen=60, toLeft=true, 
+    // Options: rainbowlen=60, toLeft=false, 
   if(millis() - strip_0.effStart < 20 * (strip_0.effStep)) return 0x00;
   float factor1, factor2;
   uint16_t ind;
   for(uint16_t j=0;j<60;j++) {
-    ind = strip_0.effStep + j * 1;
+    ind = 60 - (uint16_t)(strip_0.effStep - j * 1) % 60;
     switch((int)((ind % 60) / 20)) {
       case 0: factor1 = 1.0 - ((float)(ind % 60 - 0 * 20) / 20);
               factor2 = (float)((int)(ind - 0) % 60) / 20;
@@ -106,22 +102,5 @@ uint8_t strip0_loop0_eff0() {
   if(strip_0.effStep >= 60) {strip_0.Reset(); return 0x03; }
   else strip_0.effStep++;
   return 0x01;
-}
-
-uint8_t strip1_loop0() {
-  uint8_t ret = 0x00;
-  switch(strip1loop0.currentChild) {
-  }
-  if(ret & 0x02) {
-    ret &= 0xfd;
-    if(strip1loop0.currentChild + 1 >= strip1loop0.childs) {
-      strip1loop0.currentChild = 0;
-      if(++strip1loop0.currentTime >= strip1loop0.cycles) {strip1loop0.currentTime = 0; ret |= 0x02;}
-    }
-    else {
-      strip1loop0.currentChild++;
-    }
-  };
-  return ret;
 }
 
