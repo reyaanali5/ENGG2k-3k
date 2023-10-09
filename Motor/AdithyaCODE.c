@@ -1,55 +1,45 @@
-// Include the Arduino library
-#include <Arduino.h>
-
-// Define the motor control pins
-const int motorEnablePin = 9;
-const int motorIn1Pin = 7;
-const int motorIn2Pin = 8;
+// Define the Arduino pins connected to the motor driver
+const int enablePin = 9; // PWM pin for motor speed control
+const int in1Pin = 8;    // Motor input 1
+const int in2Pin = 7;    // Motor input 2
 
 void setup() {
   // Set the motor control pins as outputs
-  pinMode(motorEnablePin, OUTPUT);
-  pinMode(motorIn1Pin, OUTPUT);
-  pinMode(motorIn2Pin, OUTPUT);
+  pinMode(enablePin, OUTPUT);
+  pinMode(in1Pin, OUTPUT);
+  pinMode(in2Pin, OUTPUT);
 
-  // Initialize serial communication (optional)
+  // Initialize the serial communication for debugging (optional)
   Serial.begin(9600);
+
+  // Set the initial motor direction and speed (0-255)
+  digitalWrite(in1Pin, LOW);
+  digitalWrite(in2Pin, LOW);
+  analogWrite(enablePin, 0); // Set speed to 0 initially
 }
 
 void loop() {
-  // Set the motor direction (clockwise)
-  digitalWrite(motorIn1Pin, HIGH);
-  digitalWrite(motorIn2Pin, LOW);
+  // Forward direction
+  digitalWrite(in1Pin, HIGH);
+  digitalWrite(in2Pin, LOW);
+  analogWrite(enablePin, 150); // Set motor speed (0-255)
 
-  // Set the motor speed (0-255)
-  int motorSpeed = 150; // Adjust as needed
-  analogWrite(motorEnablePin, motorSpeed);
+  // Wait for a few seconds
+  delay(5000);
 
-  // Print the motor speed to serial monitor (optional)
-  Serial.print("Motor Speed: ");
-  Serial.println(motorSpeed);
+  // Reverse direction
+  digitalWrite(in1Pin, LOW);
+  digitalWrite(in2Pin, HIGH);
+  analogWrite(enablePin, 150); // Set motor speed (0-255)
 
-  // Delay for a while (e.g., 2 seconds)
-  delay(2000);
-
-  // Stop the motor
-  analogWrite(motorEnablePin, 0);
-
-  // Reverse the motor direction (counter-clockwise)
-  digitalWrite(motorIn1Pin, LOW);
-  digitalWrite(motorIn2Pin, HIGH);
-
-  // Set a new motor speed
-  motorSpeed = 200;
-  analogWrite(motorEnablePin, motorSpeed);
-
-  // Print the motor speed to serial monitor (optional)
-  Serial.print("Motor Speed: ");
-  Serial.println(motorSpeed);
-
-  // Delay for a while
-  delay(2000);
+  // Wait for a few seconds
+  delay(5000);
 
   // Stop the motor
-  analogWrite(motorEnablePin, 0);
+  digitalWrite(in1Pin, LOW);
+  digitalWrite(in2Pin, LOW);
+  analogWrite(enablePin, 0); // Set speed to 0 (stop)
+
+  // Wait for a few seconds
+  delay(5000);
 }
