@@ -15,6 +15,7 @@ public:
     Reset();
   }
   void Reset(){
+    
     effStep = 0;
     effect = (effect + 1) % effects;
     effStart = millis();
