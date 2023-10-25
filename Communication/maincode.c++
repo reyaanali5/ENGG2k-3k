@@ -132,7 +132,7 @@ void setup()
   display.clearDisplay();
 
   // Draw a single pixel in white
-  display.drawPixel(10, 10, SSD1306_WHITE);
+  display.drawPixel(10, 10, SSD1306_WHITE); //for operational purposes
 
     display.display();
   //delay(2000);
