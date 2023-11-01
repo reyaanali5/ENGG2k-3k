@@ -13,6 +13,12 @@ Servo myservo;  // create servo object to control a servo
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3D ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 
+
+// Motor A connections
+int enA = 5;
+int in1 = 6;
+int in2 = 7;
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 boolean last_sensor_state = false;
@@ -118,6 +124,12 @@ void setup()
   myservo.attach(9);  // attaches the servo on pin 9 to the servo object
   strip_0.strip.begin();
 
+  // Set all the motor control pins to outputs
+  pinMode(enA, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
 
   pinMode(SENSOR_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(SENSOR_PIN), sensor_triggered, FALLING);
@@ -143,6 +155,7 @@ void setup()
 
 void loop()
 {
+  MotorRun();
   if(last_sensor_state) {
     Serial.println("Object detected!");
     marbleCount++;
@@ -177,4 +190,15 @@ void testscrolltext(void) {
   display.display();      // Show initial text
 }
 
+// This function lets you control spinning direction of motors
+void MotorRun() {
+  // Set motors to maximum speed
+  // For PWM maximum possible values are 0 to 255
+  analogWrite(enA, 150);
+
+  // Turn on motor A & B
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  
+}
 
